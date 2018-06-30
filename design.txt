@@ -1,0 +1,418 @@
+Design.txt
+
+Jared Faucher
+Harvard Extension
+CSCI E-50
+Spring 2014
+
+/******* ESCAPE! *******\
+
+/***Basics about GMP***\
+
+	To understand the code I wrote for my game I believe it is necessary for me 
+to give a quick introduction into the basics of the Javascript game engine I used 
+called GogoMakePlay.  GogoMakePlay, or GMP as I will be referring to it from now on,
+is a easy to learn, fast and free game engine that I found at gogomakeplay.com 
+after searching for about a week for the perfect game engine.  I chose GMP because 
+unlike some of the other free engines I tried (gameQuery, Crafty, Quintus and etc) it 
+was very simple and intuitive for me to understand.  Although not as powerful as some 
+of the other more popular game engines, GMP was good enough for my purposes and did 
+not require as must experience with JavaScript/jQuery as some of the other engines did.
+
+	The structure of a GMP game is actually very simple, only involving a few different 
+types of variables and functions.  The main idea behind GMP is that for each game or 
+level the game engine calls the main function, G.F.mainAI, over and over again creating 
+a game loop.  The G.F.mainAI function actually contains calls to AI functions for all 
+interactive objects in the game and by repeatedly calling G.F.mainAI, the functions 
+controlling the behaviors of the objects in the game are also called.  Similarly to other 
+languages we define the objects' AI functions not inside of the G.F.mainAI function but 
+outside the function, either in the same file or a separate one.  Finally the way we start 
+the game loop is by loading the G.F.mainAI function into a block.  Loading the block is 
+the last thing we do when starting a game, or in my case a level for a game, as it takes 
+the G.F.mainAI function and continuously loops it.  Although this may seem a little confusing, 
+I will walk you through the starting page and first level if my game, explaining line by 
+line how this process works.  After seeing the basic structure of the starting page and 
+first level, you should then be able to look at my separate functions file and the other 
+levels and figure out exactly how the code works.
+
+/***Going through CSS/HTML***\
+
+	Now before going through the code for the starting page and first level I will quickly 
+go through the HTML and CSS for this game.  The HTML is very simple and self explanatory.  
+I've followed the basic structure for any HTML page, giving it the title "Escape!" and 
+including the script for jQuery between the "<head>" tags.  Although I do not use much jQuery 
+in my code I do use jQuery and Ajax to load the next level in the game and use the 
+$(document).ready  function to ensure that all the elements in the game are loaded before 
+each level starts.  If you direct your attention to the <body> of the page that is where 
+the actual game itself is located. Although in class most of our Javascript was included 
+in the <head> tags instead of the <body> tags, the GMP library requires all code for the 
+game to be included in the body.  The first JS file I've included is "gmp-engine.1.7.4.js", 
+the GMP library located in the "lib" directory.  There  is no need to look into this file as 
+all information regarding the library can be found on the  website I mentioned above.  The 
+next file is the "functions.js" located in the "src" directory.  All files that I have coded, 
+including each level, are located in the "src" directory.  The next file is the "globals.js" 
+file.  This file is where I declare a few global variables that will need to be used 
+across all levels along with the function I use for the game's timer, but I will go into 
+further detail later in this text.  Lastly we have the "start.js" file, which is the file 
+I use for the game's starting screen.  I included this so the user isn't immediately thrown 
+into the game and has some time to learn the controls, rules and objective of the game before 
+starting, but I will go deeper into this later in the text.
+
+	The CSS file for this game is actually quite short as most of the objects in my game are 
+represented with images instead of DOM elements that require CSS.  The first line of the CSS 
+file is regarding the element with the ID "exit".  This line just gives a black background to 
+the exit ladder for each level. Because the images I used for objects in this game are transparent 
+".PNG" files, I added a black  background to the ladder to make it appear as if it was leading 
+somewhere instead of just sitting against the background of the game.  Similarly the next line 
+gives a black background to all elements with the class "hole".  Later in the game I incorporate 
+holes that the player can fall into but instead of using a image, I just created a black rectangle 
+for the hole using this CSS.  After this we have the CSS for the game's menu, which is the block 
+above the game that displays the users lives left, time elapsed, current level and the games title. 
+I simply changed the background color, color, font and added a border to make the menu more 
+aesthetically pleasing.  The next line is for the message display box used throughout the game.  
+This box is used to display the rules in the starting page for the game and to display other messages 
+throughout the game. I just changed the color, background color, font and added a border.  The next 
+line is where I just define the dimensions for all tables in the game.  I used a table in the game's 
+menu to display the information previously stated so I had to define its dimensions here.  The next 
+line is just  defining the font and font size for the game's title located within the menu.  The next 
+line gives a black background and a border to the game's viewport.  I will go into greater detail later 
+in this text but the viewport is basically where all the action happens in the game.  Lastly we have 
+the code giving all elements of the class "wall" a gray background color and a border.  Although most 
+walls in my game are actually images, I do put a border inside the viewport and this is the code that 
+gives these in-game border's their color.
+
+/***Going through globals and starting page***\
+
+	Before diving into the actual code of the game I will first explain the "globals.js" and 
+"start.js" files.  The globals.js file actually only contains five variables and two functions 
+controlling the in game timer.  The variable "livesLeft" is used to keep track of how many lives 
+the player has left across all of the levels.  I put this in a separate file because since I have 
+to load each level file separately, this was the only way to keep the "livesLeft" static across 
+all levels.  Next we have the "gameInProgress" variable.  This variable is used to tell the game's 
+timer when it should begin timing and when the timer should pause.  Without the gameInProgress 
+variable I had no way to stop the timer upon death or completion of the game, as it would continue 
+counting.
+
+	The rest of the "globals.js" file are variables and functions associated with the in-game timer. 
+The "seconds", "minutes" and "counter" variables are all initialized at 0 upon the start of the game.  
+The "pad" function is a function I found on stackoverflow.com used to display the minutes and seconds 
+values in a more user friendly way.  If minutes or seconds are less than 9 (eg 5 minutes and 5 
+seconds), the function returns the value with a leading 0 (eg 05:05), but if the value is greater 
+than 9, the function simply returns the same value.  The next function is the actual timer for 
+the game which I also found on stackoverflow.com but modified to fit the needs of my game.  Using the 
+"setInterval" function I call the function inside every 1000 milliseconds (1 second).  If the player 
+still has lives left and the game is in progress (the user has started the game and is not dead), 
+then the function increments counter and mods it by 60 to get total number of seconds elapsed less 
+any minutes and "pads" it using the aforementioned function.  The function then calculates the minutes 
+by dividing the counter by 60, then parses it to a decimal integer using "parseInt" and finally "pads" it.  
+Now if "livesLeft" is not greater than 0 or if "gameInProgress" is false, the function simply stops 
+incrementing counter but still calculates minutes and seconds so that the menu still displays the 
+elapsed time.  This is useful because when the user completes the final level, the game displays the 
+time it took them to finish and without this else statement in the function, the timer would continue 
+to increment the time every second.
+
+	Now that I have explained the global variables used in the my game I will explain the "start.js" 
+page before going into the code for an actual levels.  The first function we encounter in "start.js" 
+is the "G.F.loadStart" function.  This is the function containing all the initial states for all of 
+the objects and the structure for the game.  On line 6 you see that it also assigns "G.F.mainAI"as the 
+AI for this object.  This may seem a little confusing at first but assigning AIs to objects is a 
+convention in this library and will make more sense when I explain the first level of the game.  The 
+next thing we see is the creation of the Gob (G Object) "menu" within the main "G", the global object 
+of the game.  When creating objects in GMP you must create them within another object.  Because we don't 
+have any objects yet, the menu and the viewport are both created inside the global object G, which is 
+called by the game loop.  As for the menu, the setVar function sets the position and size of the object
+relative to G and sets which AI function will control this object. Since the menu is a child of G, it's 
+position is relative to the actual HTML page and it therefore is located 50px to the right and 50 down 
+from the upper left corner for the page.  The next function chained to the menu is setSrc which just 
+sets the value of the menu as some HTML code.  The function setSrc can be used to display text or in 
+the case of objects that are images, the location of the image file, but we will see more examples of 
+that in the first level.  The last thing we do to the menu is turn it on. Turning on an object in GMP 
+makes the object visible and able to interact with other elements.  Most objects will be turned on in 
+the main function in later levels there will be examples where objects aren't turned on until a certain 
+interaction has happened.
+
+	After the creation of the game's menu the next object that I added to the game was the "viewport". 
+The viewport is where all of the objects are located and where all the interactions in the game are 
+made. As I stated before, I decided to keep the menu and viewport as two separate objects in G and 
+thus the viewport is added to G itself instead of another parent object.  The last object that is added 
+in the starting page is the message display.  The message display is what I used to communicate the 
+objective, controls and rules to the player in the start page and will be used later on to communicate 
+the completion of a level, the end of the game and death to the player.  As you can see, similarly to 
+the menu object, I used the setSrc function to display HTML code within the message display.  The last 
+thing that should be noticed from this object is that instead of being added to the global object G, the
+message display is instead added to the G.O.viewport.  Therefore the message display "lives" inside of 
+the viewport object and it's position is relative to its parent object's position instead of the position 
+of the global object G.  Thus in the case of the message display its position is 20px right and 100px 
+down from the top left corner of the viewport, not the top left corner of the HTML page.
+
+	Because this is just the starting page for the game the G.F.mainAI function is not as involved 
+as some of the later levels but it does display an important concept that GMP uses in every game. 
+Back on line 6 of "start.js" I assigned the "G.F.mainAI" as the AI for the "G.B.start".  This may 
+seem strange at first but when looking at line 61, you can see how we instantiate the block "start" with the load 
+function "G.F.loadStart" and also load said block. So essentially we are creating the G.B.start, which 
+loads the G.F.loadStart function.  Inside the G.F.loadStart function we see that in additional to 
+creating all the objects, G.F.mainAI is assigned as the AI for G.B.start thus starting the game loop.  
+Now the game will continuously loop through G.F.mainAI, executing all of the functions until the game is 
+stopped. It may seem like a lot at once but when block is loaded on line 61 with the G.F.loadStart 
+function the loadStart function sets the initial states for all the objects and links in the G.F.mainAI 
+function while the G.F.mainAI function controls the actual logic for the game.  Now I will walk you 
+through the code for the first level which will be different because it is the actual game and not just 
+a static page, clearing up any confusion with GMP's structure for later levels.
+
+/***Going through level 1 code***\
+
+	A lot of things in the "level1main.js" file will look very similar to the "start.js" file.  For 
+example line 6 also assigns the G.F.mainAI function as the AI for G.B.level1.  The menu, viewport 
+and message display objects are all created in the same way as before except using the global variables 
+livesLeft, minutes and seconds instead of plain numbers.  One difference with the menu however that 
+was not mentioned in start.js is line 13 where we use the setState function on the global block G to 
+create a global variable for this level.  This new variable which we access by using "G.S.level" is used 
+in displaying the current level in the game menu and for loading the next level upon completion which 
+will be discussed more in the functions section of this text.  All that you need to know about the 
+setState function is that it is a useful way to assign certain variables to objects that can be used 
+to trigger events to happen. 
+
+	Another thing that we did not see in the starting page is on line 9.  This line tells our game 
+to capture keyboard input from the user for certain keys; in this case the four directional keys.  We 
+will use these keys to control our character but how this works will be discussed more when exploring 
+the player AI function in "functions.js" file.  Besides this the rest of the code in G.F.loadLevel1 is 
+simply adding various objects to the viewport.
+
+	The first object that is added to the viewport is the background in the form of an image file.  As 
+you can see because we are just adding the background image to the viewport, it does not require any AI 
+assigned in the setVar function.  One thing we haven't seen so far in the setVar function is "nextSrc".  
+Since we are displaying an image as the background in the viewport nextSrc is used to identify the path 
+and filename of the image we desire to use.  It is also worth noting that on line 39 the third argument 
+'IMG' tells GMP to treat this object as an image in the DOM, not just a div like the borders or holes used 
+later in the game.
+
+	The next object that is added to the viewport is our player, the sprite that the user controls during 
+the game.  The player is created in a very similar fashion to the background: it is added to the viewport 
+as an 'IMG', its position is set relative to the viewports position and its nextSrc points to the file we 
+use as the image for our character.  Within setVar we see its AI being assigned as some G.F.playerAI 
+function located in the functions.js file, but besides this the properties in setVar are very different.  
+This is because our character sprite is animated when walking and since I am using one image with all possible 
+positions for the character (see img/player.png) I need to tell the program which section of image file to 
+use at what time.  Like other objects "x" and "y" are simply the initial position of the object relative to the 
+viewport and "w" and "h" are the width and height of the object.  The variables "tw" and "th" are the width and 
+height of the source file that the sprite's images are extracted from (player.png) and "cw" and "ch" are the 
+width and height of each chunk of the original to be used for the sprite.  To simplify this idea GMP breaks 
+the source file for the sprite into cw by ch sized chunks which can each be called individually depending on the 
+circumstances.  For example for the player.png image, we are breaking a 160px by 90px image into six 40px by 45px 
+blocks and accessing those blocks with "cx" and "cy".  Since cx = 0 and cy = 0 we are picking the top left image 
+block from the main image and displaying that as our player.  This may seem strange but will become more 
+clear when we discuss the actual animation of the player in the playerAI function later in this text.  The last 
+thing we see that is new in the creation of the player object is setState being used to assign a few state 
+variables to the player object.  These variables are used in the animation of the character and will also be 
+discussed in more detail later in this text.  The last thing we do is use the "turnOn" function to make our 
+player active on the screen.
+
+	The rest of the loadLevel1 function consists of creating other objects within the viewport in a fashion 
+similar to the player object but with different positions, AIs, images or initial states.  I will not go 
+into as much depth with the rest of the objects because besides the different AIs and states, the rest of 
+the information is just an extension of what I discussed in the previous paragraph. However I will briefly 
+explain the rest of the objects created in this level.  On line 56 I created the first switch, named switch0, 
+with the switchAI and the initial states "flipped" as true and "id" as 0.  The state flipped is used to show whether 
+or not the player has stepped  on the switch and the "id" state is used to link that switch to its respective 
+gate.  This will be discussed more in the functions section of the text but is worth noting now.  
+
+	The next object created is the first gate, named gate0, with the gateAI and an initial state of "open" as true and 
+"id" as 0.  The open state is used as a flag to tell the program to open the gate when it's switch is pressed 
+and the id state is used to link gates to their respective switches similarly to the switch id.  This will also 
+be discussed in greater detail in the functions section of this text.
+
+	The next object created is the exit ladder, named exit, with the exitAI.  Unlike some of the other objects 
+this object did not need any initital states.  Though it will be also be discussed more in the functions.js 
+the main purpose of the exit object is to load the next level when the player reaches the exit.
+
+	The next two objects created are walls, wall0 and wall1, which both use the wallAI.  The more technical 
+workings of the wallAI function will be discussed in the functions.js section but for now the walls just serve 
+as obstacles or barriers that the player must work around.
+
+	The next four objects created are the borders which do not have any AI.  I decided to put borders in each 
+level as objects to serve as the outer walls of each level.  They are not technically necessary but I felt as 
+if they made the game more aesthetically pleasing.
+
+	The last object create is the message display similar to the starting page.  The main purpose of the 
+message display in the game's 8 levels is to display a congratulatory message to the user upon completion of 
+the level or game prompting the user to click to proceed and to display a message when the user loses all 
+three lives asking the user if they want to try again.  Note that this object has not been turned on like 
+the other objects and thus isn't visible until it is needed.
+
+	Now that the loadLevel1 function is done we will discuss briefly the G.F.mainAI function for level 1.  
+The main point of the mainAI function in each level is to loop through any objects' AIs continuously.  Therefore 
+the only code we see in here is the calling of the AI functions for any objects who have AIs.  Since not 
+every object has an AI function, like the borders or the message display, we do not need to call the AI for 
+all objects in the game just the ones who have AI.
+
+	Similarly to the start page the last thing we do is create the G.B.level1, loaded with the G.F.loadLevel1 
+function and then load the block itself.  This creates all of the objects and then begins the game loop until 
+the player loses all three lives or reaches the exit.  The rest of the levels will have the same structure 
+as level 1 just with increasing complexity and with the addition of enemies, holes, bridges, and bridgeSwitches, 
+but I will discuss those in greater detail later in this text.
+
+/***Going through the functions***\
+
+	Besides simply setting up the initial conditions of the objects and looping the AI for all of the objects, 
+most of the code for my game is not within the any of the levels' main files but instead in the functions.js 
+file located in the src directory.  This file is where all of the AIs for all of the different objects are 
+defined, which determines the interactions between objects and the logic of the game.  The first 
+few AIs in this file are for objects we saw in level 1, and all other levels for that matter, but some of 
+the later functions are for objects that have not been introduced yet.
+
+	The first AI we see in the functions.js file is the G.F.menuAI which is used in conjunction with the 
+G.O.menu to display the user's lives left, current time, current level and the game's title. The first thing 
+we see in this function is assigning 'this' to the variable t.  This is something I did in every AI function 
+and is simply to make it easier to use access the object as a variable in the rest of the function.  The next thing 
+we see is a conditional statement "if (t.on)" inside of which is code that uses setSrc to update the HTML 
+inside of the game menu.  Because the G.O.menu is always on in my game this continuously updates the menu's 
+values while the game is being played.  This is useful so that we can update the time elapsed so far, the lives 
+left and the current level.  On line 31 you can see out use of the global state variable G.S.level which is 
+unique to each level main file.  This ensures that as the user progresses through the 8 levels the menu always 
+has the correct one displayed. The last thing in this AI function is on line 38, where we return t.  This is 
+simply a convention within the GMP library as returning the object at the end of the AI file ensures that 
+the object can interact with other objects or be linked with other functions.
+
+	The next AI we see is the G.F.playerAI which is how we control the player's movement with the 
+directional keys on the keyboard.  In this function we again declare the object as the variable for t for 
+easier access.  After that there are four conditional statements which are triggered if one of the four 
+directional keys are pressed.  Since these four functions are similar except for the key that triggers them 
+I will only go into depth for when the left key is pressed.  When the left key is pressed the next conditional 
+statement determines whether or not the player is 10px away from the end of the viewport which prevents our 
+player from moving off screen.  Assuming the player is not at the edge of the screen on line 58 I used the 
+setVar function to change the player's x value to the current value minus 5px.  The next pair of conditionals 
+is where the leftFrame state that I spoke about earlier comes in to play to animate the object.  Every time the 
+left key is pressed the leftFrame increments by one and if its value mod 4 is less than 2, the cx: 2 and cy: 0 
+section of player.png is displayed, and if its value mod 4 is not less than 2 than the cx: 3 and cy: 0 section 
+is displayed.  This means that every two steps the image block from the player.png changes between the two left 
+moving blocks (2, 0) and (3, 0).  If you open up player.png you can see how alternating between these two images 
+animates the player's steps making it appear as if it is walking.  Finally on line 73 we use the draw() to 
+redraw the player in its new position with its new image.  The other four directions work the same way except 
+using different cx and cy values for different animations and should be easy to understand.  Finally on line 154 
+we return t so that the player can interact with other objects and be chained with other functions.
+
+	The next AI we see is the G.F.switchAI which is how we determine if a switch has been pressed and if it 
+has been pressed, how we open its corresponding gate.  On line 166 we assign the current switch to "t", assign 
+its state id to "id" and use "id" to assign its corresponding gate to the variable "gate".  The next thing we see 
+is a conditional statement which checks if the player has intersected with the switch.  One useful thing is that 
+GMP comes built in with a few functions like checkIntersection and checkCollision so we don't have to code them 
+ourselves like we did in Breakout.  If the player has stepped on the switch then the switches "flipped" state is 
+set to true, its source image is changed to "switchoff.png" and the switch is redrawn.  Since switches are color 
+coded I decided to make the switches yellow when they are in the off position to make the game seem more interactive.  
+The next thing we see is a conditional statement which checks if the switch's "flipped" state is true, and if it is, 
+sets the corresponding gates "open" state to true as well.  This lets the gateAI know that it should open that gate.  
+Lastly we return the object like we have in the other functions.
+
+	Next we have the G.F.gateAI which we use to animate the opening of a gate and to prevent the player 
+from walking through the gate if it is not open.  In the first conditional statement we see that the function 
+checks if the gates "open" state is true.  If the gate's switch has been flipped then the gate will be open.  
+The next two conditional statements are for animating the opening of the gate.  The function checks if 
+the gates "frame" state is less than 12 and if the gate is vertical or horizontal.  If the frame is less 
+than 12 (ie if the animation is not over) then the function continues to shorten the gates width or height 
+by 12px, redraws the gate and then increments the frame.  If the gate's corresponding switch has not been 
+flipped than the else statement on line 220 executes instead.  This code works similar to the wallAI function 
+by not allowing the player to pass through the gate, effectively making it a solid object.  The code checks 
+where the player is relative to the gate and uses the player's and gate's x and y coordinates to prevent the 
+player from passing through redrawing them outside of the gate. Lastly we return the object like in the 
+previous AI functions.
+
+	Next we have the G.F.wallAI which makes the walls in the game behave as solid objects similarly to how 
+the gates act like solid objects when their corresponding switch has not been flipped.  I will not go into 
+detail because it uses the same concepts discussed in the paragraph for the gateAI function.
+
+	The next AI we see is the G.F.exitAI which allows our player to progress to next level upon reaching 
+the exit ladder.  On line 318 we assign the exit object to "t", the G.O.player to "player" and the G.S.level 
+to "level" for easier access.  Next we have a conditional statement checking if or player has intersected 
+with the exit object.  If the player has touched the exit ladder then the function increments the local 
+variable "level" and checks to see if it is less than or equal to 8 to determine if the player has completed 
+the game or not.  If the player has not completed the game the function displays a congratulatory message 
+by using the setSrc function on G.O.message and turns it on.  I then used some jQuery so that if the 
+player clicks the message display, the function uses Ajax to load the next level from the server.  Now if 
+the level is greater than 8 than the player has reached the end of the game.  The function changes the 
+gameInProgress variable to false to stop the timer, displays a message with their elapsed time and lives left 
+and asks the user if they would like to retry the game.  I again used Ajax to load the start.js file if 
+they click the message display and reset the counter for the timer and reset livesLeft to 3 for the next 
+game. Finally on line 370 I return the object like in the other AI functions.
+
+	The next AI we have is the G.F.enemyAI which controls the enemies that are introduced later in level 
+3 and beyond.  The enemies are objects similar to our player but that move horizontally across the screen 
+back and forth instead of being controlled by the user.  On line 383 we declare the current enemy as "t" and 
+the G.O.player as "player" for easier access.  The next line we encounter is a conditional with the condition 
+"if (t.on)".  Similarly to the menuAI if the enemy is turned on in the loadLevel function than this condition 
+will always be met putting the enemies in an infinite loop. The next thing we see is an if-else statement in 
+regards to the enemy's "movingLeft" state.  This is simply a trigger to let the function know whether the 
+enemy is moving left to right or right to left and is initialized as false in all levels but I will discuss this 
+in further detail in the next section of this text.  If the enemy is movingLeft then like in the playerAI 
+where the function moves the player 5px in whatever direction the user as pressed, the enemy function moves 
+the player left 10px, animates the enemy using the state "leftFrame" mod 4 and redraws the enemy in its new 
+position.  Similarly on like 409 if the enemy is not movingLeft then the enemy is moved right in the opposite 
+direction, animated based on the "rightFrame" state and redrawn.  Below this we see another if-else statement 
+which determines if the enemy has reached the edge of the screen and changes the "movingLeft" state accordingly 
+to reverse the enemy's direction of movement.  The last part of the enemyAI function is where we check if the 
+player and enemy have collided. If they have then the player is moved back to the starting position of (50, 50) 
+and the livesLeft variable is decremented.  The function then checks if there are 0 livesLeft and if so displays 
+a message asking the player if they'd like to try again.  I then used jQuery and Ajax again to load the start.js 
+file if the user clicks the message display. If livesLeft is not 0 than the function redraws the player in the 
+new position and the player is allowed to keep trying.  Lastly the function returns the object by convention.
+
+	The next AI we have is the G.F.holeAI which determines if a player has fallen into a hole or if a player is 
+safely crossing the hole over a  bridge.  In level 6 and for the rest of the game I added three new objects to 
+the game, holes, bridges and bridge switches.  Like most games, if a player tries to walk over a hole without using 
+a bridge the player falls to their death and loses a life.  Holes can be avoided by using a bridge switch to 
+activate a bridge allowing the user to cross, but I will discuss these is greater detail later.  As far as the 
+holeAI goes it is not too different from the enemyAI.  Like most functions I declare the current hole as "t" and 
+G.O.player as "player" for easier access.  After that the first conditional we encounter tests to see if our players 
+"onBridge" state for any of the bridges if not true and if the player has intersected with the current hole.  In 
+later levels I gave the player the initial states of onBridge0: false, onBridge1: false, onBridge2: false and 
+falling: false to help with these functions.  I will discuss it more in the bridgeAI section but basically if a player 
+is standing on a bridge, their onBridge state for that particular bridge becomes true.  Thus the conditional on line 
+499 checks if the player is touching the hole and NOT on a bridge.  The function then checks if the hole is horizontal or 
+vertical, which is determined by the "horizontal" state given to the hole in the loadLevel function.  The reason 
+I differentiated between the two is that there are different criteria for falling in a hole that is vertical versus 
+a hole that is horizontal. If the hole is horizontal than the function checks if the player's body's lower 1/3 is 
+over the edge of the top of the hole and above the edge of the bottom of the hole, basically determining if the 
+players feet are no longer on solid ground.  If this is the case than the player's "falling" state is set to true.  
+Similarly for the vertical holes the function checks if half of the players body is over the edge on either side 
+and sets the player's "falling" state accordingly.  The next thing we encounter is a conditional statement checking 
+if the player's "falling" state is true.  If it is the function decrements the livesLeft and re-spawns the player 
+similarly to the enemyAI.  If no lives are left than the function asks the player if they would like to try again 
+and loads the start.js file if they click the message.  If there are lives left than the function simply redraws 
+the player at their starting position.  Finally on line 569 is the else statement which evaluates if the player 
+is not touching a hole or if they are on a bridge, which sets our player's "falling" state as false.  Lastly we 
+return the object by convention.
+
+	The last two AI functions are the G.F.bridgeAI and the G.F.bridgeSwitchAI.  The bridgeSwitchAI is similar 
+to the switchAI function mentioned above where it uses the bridgeSwitches "id" state to determine the corresponding 
+bridge and if the player intersects with the switch, it turns on the bridge.  It is pretty self explanatory with the 
+comments and after reading about the switchAI so I will not go too much into it.  Now the bridgeAI is a little 
+different than the gateAI so I will go through it.  At the beginning of the function, like the other functions, we 
+assign the bridge to "t", the bridge's id state to "id" and the G.O.player to "player" for easier access.  We then 
+check if the player is intersecting with the bridge, and since checkIntersection will only evaluate to true if 
+the bridge is turned on by the corresponding bridgeSwitch, we need not check if it's on.  The function then checks 
+if the bridge is horizontal or vertical by checking the "horizontal" state given to the bridge in the loadLevel 
+function.  The function then checks if the player is in between the edges of the bridge, whether it is horizontal or 
+vertical and changes the players corresponding "onBridge" state to true if that is the case.  If the player is not 
+all the way on the bridge the function will not set this state to true, causing the player to fall into the hole if 
+they are not careful.  Finally on line 646 if the player is not touching a bridge than the function automatically sets 
+the corresponding "onBridge" state to false.  Lastly the function returns the object by convention.
+
+
+/***Brief overview of new objects in later levels***\
+
+	As I stated in the previous section new objects are introduced to the game in later levels.  If you look at 
+the source code for "level3main.js" on line 57 you can see that enemies are added much like the player object, 
+determining the different image blocks from the source image for the sprite and with the movingLeft, rightFrame and 
+leftFrame states set in the beginning.  In different levels enemies are placed in different positions all over the 
+viewport but are all implemented in the same way.  Similarly to enemies, in level 6 I introduced three new objects 
+to make the game more interesting: holes, bridges and bridge switches.  If you look at the source code for "level6main.js" 
+on line 96 you can see how holes are implemented like any other object.  Unlike most other objects in the game, 
+holes are not images but rather just divs in the DOM so we need not add in the 'IMG' argument or use the nextSrc 
+function when implementing them.  In this level you can see the "horizontal" state is set to false since this is a vertical 
+hole.  The next object we see in level 6 is our first bridge.  Much like the other objects in the game, it is created 
+with its initial position, AI, source image and states but is not turned on at the end.  This is because for our 
+bridge to turn on and be walkable, we want our use to press the bridge switch.  The next object we see created is a 
+bridgeSwitch.  It is implemented almost identically to the regular switches except with the bridgeSwitchAI and the 
+bridgeswitch.png source image.  Although I only spoke briefly about these new objects and later levels all of the 
+levels are created with the same structure just with increasing difficulty and complexity.  If you have been able to 
+understand what I've explained so far then you should have no trouble skimming through the other levels, while reading 
+the comments, to figure out the rest of the game.  Thank you for taking the time to read this and enjoy playing!

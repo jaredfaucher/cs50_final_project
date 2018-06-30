@@ -1,0 +1,38 @@
+/*  CSS for Escape game
+*/
+#exit {
+    background-color: #000000;
+}
+.hole {
+    background-color: #000000;
+}
+
+#menu {
+    background-color: #02D98E;
+    border: solid black;
+    font: 14px Arial;
+}
+#message {
+    color: #FFFFFF; 
+    background-color: #02D98E;
+    text-align:center;
+    border: solid white;
+    font: 18px Arial;
+}
+table {
+    width: 500px;
+    height: 80px;
+}
+#title {
+    font: 28px Arial;
+    text-align: center;
+}
+#viewport {
+    background-color: #000000;
+    border: solid black 3px;
+}
+.wall {
+    background-color: #C7C7C7;
+    border: solid black 1px;
+}
+

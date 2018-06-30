@@ -1,0 +1,76 @@
+Documentation.txt
+
+Jared Faucher
+Harvard Extension
+CSCI E-50
+Spring 2014
+
+/******* ESCAPE! *******\
+
+/***What the game is?***\
+
+    For final project in CS50 I decided to take what I learned over the semester, particularly from the last few weeks and 
+Problem Set 8 and build a Javascript based game.  To implement this game I used the GMP (gogomakeplay.com) Javascript game 
+engine, which is a simple, easy to learn and free Javascript game engine found online. I picked GMP after trying out several 
+other Javascript engines (gameQuery, Crafty and Impact to name a few) but found them hard to understand and even harder to 
+implement.  The game I created is an NES style game where the player controls a man trying to escape from prison.  The player 
+uses the four directional keyboard keys and moves the man through 8 different levels, each increasing with difficulty.  The 
+player has to flip switches to open gates, avoid being touched by enemies and flip more switches to activate bridges to navigate 
+over holes in the floor.  The player is given 3 lives which can be lost if the player either touches an enemy or falls into a 
+hole in the ground.  The player is also timed as they progress through the levels and their winning time is displayed after 
+completing all of the levels.  I added the timer to give the game some sort of re-playability and allow players to compete with 
+each other for the best score.  All images for my game were adapted from sprites and maps from Final Fantasy on NES, found at
+www.videogamesprites.net.  Though I had to edit and rearrange the images to fit my game, I was not the individual who orginally
+created the images and would like to give them credit. 
+
+/***Setting up the Game***\
+
+    Setting up the game is very simple once you have downloaded the .ZIP file to the CS50 appliance.  Simply unzip the files 
+contents into the ~/vhosts/localhost/public folder, open up Chrome and type the IP Address in the right hand corner of the 
+appliance followed by /escape (ex 192.168.154.128/escape) and the game should load.  If you happen to encounter any errors you 
+may need to chmod all files in the /escape folder to 644 and all directories to 711.  Besides this I have debugged my game 
+extensively and you should not encounter any problems.
+
+/***The Controls***\
+
+    The Controls for Escape are very simple.  The player simply uses the four directional keys on the keyboard to move the 
+character up, down, left or right.  The controls also allow users to move the player diagonally by pressing two non-opposing 
+keys at the same time.  This can be useful when trying to avoid enemies or when trying to get a high score, as moving diagonally 
+is faster than moving in one direction.
+
+/***Gates/Switches/Basics***\
+
+    After mastering the controls of the game it is best to know the basics.  In this game there are 8 levels that you must complete 
+before you can escape and win the game.  In each level the player must step over a switch to open up a gate to the exit ladder or 
+another switch.  Each pair of switches and gates are color-coded so that you know which switch will open which gate.  When the player 
+opens all of the gates in the level, the path to the exit ladder becomes clear allowing the user to progress to the next level.  
+When the player climbs the ladder, the game displays a congratulatory message and prompts the user to click the screen to progress 
+to the next level.  It is important to click as soon as possible if you are trying to get the best time because the timer does not 
+stop for the message.  The game follows this pattern with increasing difficulty until the player reaches level 3 and enemies are added.
+
+/***Enemies***\
+
+    The enemies in this game are very fast and very dangerous.  Moving horizontally across the screen back and forth at twice the 
+speed of our character, if the player accidentally touches and enemy, they lose a life and are re-spawned at their original starting 
+point for the level. The enemies also have the ability to cross over holes in the ground without falling down into them so it is 
+important to keep and eye on them at all times.  Enemies, switches and gates are the only objects the player encounters in the game 
+until level 6 when holes, bridge switches and bridges are added.
+
+/***Bridges/Holes***\
+
+    Up until now the player has only had to worry about losing a life by touching an enemy, but in level 6 and beyond there exits 
+more environmental dangers that the player has to deal with.  These new dangers are holes, which a player loses and life for if they 
+accidentally fall into one.  In order to deal with holes these levels contain bridges and bridge switches.  Like the gate switches in 
+previous levels, bridge switches are activated by walking over them with the character.  When the player walks over a bridge switch a 
+corresponding bridge appears and allows the user to cross over the hole.  Unlike gate switches, bridge switches are not color coded and 
+thus the player may activate a bridge switch thinking it is is going to turn on a bridge in one spot, but may end up having to back track 
+or find another bridge switch.  
+
+/***The End***\
+
+    Once you have completed all 8 levels of Escape without losing all three lives, you have won the game.  Upon using the exit ladder in 
+level 8 you should get a new message displayed, similar to when you progress to the next level.  This message displays the time it took you 
+to complete the game and how many lives you had left upon completion.  This allows the game, although short, to be re-playable as players 
+may try to beat their best time or survive with more lives left. It also allows players to compete with others and compare their best times 
+along with how many lives they had left.  Although the game is simple, I think it is a great game and allows a lot of room for expansion of 
+features and more levels.  Thanks for reading and enjoy! 
